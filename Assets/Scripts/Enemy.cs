@@ -10,6 +10,9 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     private float attackRange = 3f;
 
+    public int zombieHP = 100;
+    public int zombieDamage = 20;
+
     public enum State
     {
         Idle, Chase, Attack, Hit, Dead
@@ -18,13 +21,24 @@ public class Enemy : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+    
+    public void Hit(int damage)
+    {
+        zombieHP -= damage;
+        if(zombieHP <= 0)
+        {
+            // Á»ºñ Á×À½
+            enemyState = State.Dead;
+            GetComponent<Animator>().SetBool("isDeath", true);
+        }
     }
 
     private void Chase(GameObject playerObj)
@@ -52,6 +66,16 @@ public class Enemy : MonoBehaviour
     {
         string tag = collision.gameObject.tag;
         if(tag == "Player")
+        {
+            Chase(collision.gameObject);
+        }
+    }
+
+    private void OnCollsionStay(Collision collision)
+    {
+        string tag = collision.gameObject.tag;
+        Debug.Log(tag);
+        if (tag == "Player")
         {
             Chase(collision.gameObject);
         }

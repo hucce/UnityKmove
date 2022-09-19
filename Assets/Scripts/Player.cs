@@ -4,8 +4,12 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    public int playerCurrentHP = 100;
+    public int playerMaxHP = 100;
+    public int playerDamage = 20;
     public float moveSpeed = 5f;
     private Animator playerAnimator = null;
+    private bool playerDead = false;
 
     // Start is called before the first frame update
     void Start()
@@ -16,8 +20,11 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Move();
-        Attack();
+        if (playerDead == false)
+        {
+            Move();
+            Attack();
+        }
     }
 
     private void Move()
@@ -56,5 +63,21 @@ public class Player : MonoBehaviour
     public void EndAttackAni()
     {
         playerAnimator.SetBool("isAttack", false);
+    }
+
+    public void OnCollisionEnter(Collision collision)
+    {
+        string tag = collision.gameObject.tag;
+        if (tag == "ZombieWeapon")
+        {
+            int damage = collision.transform.root.GetComponent<Enemy>().zombieDamage;
+            playerCurrentHP -= damage;
+
+            if(playerCurrentHP <= 0)
+            {
+                // 플레이어 죽음
+                GetComponent<Animator>().SetBool("isDeath", true);
+            }
+        }
     }
 }
