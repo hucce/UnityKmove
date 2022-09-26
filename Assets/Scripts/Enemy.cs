@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -12,6 +13,9 @@ public class Enemy : MonoBehaviour
 
     public int zombieHP = 100;
     public int zombieDamage = 20;
+    public float hitTime = 0.5f;
+
+    private GameObject[] zombieHands = null;
 
     public enum State
     {
@@ -21,7 +25,7 @@ public class Enemy : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        zombieHands = GameObject.FindGameObjectsWithTag("ZombieWeapon");
     }
 
     // Update is called once per frame
@@ -32,14 +36,37 @@ public class Enemy : MonoBehaviour
     
     public void Hit(int damage)
     {
-        zombieHP -= damage;
-        if(zombieHP <= 0)
+        if(enemyState != State.Hit)
         {
-            // ¡ª∫Ò ¡◊¿Ω
-            enemyState = State.Dead;
-            GetComponent<Animator>().SetBool("isDeath", true);
+            zombieHP -= damage;
+            Debug.Log("¡ª∫ÒHP " + zombieHP);
+            if (zombieHP <= 0)
+            {
+                // ¡ª∫Ò ¡◊¿Ω
+                enemyState = State.Dead;
+                GetComponent<Animator>().SetBool("isDeath", true);
+            }
+            else
+            {
+                StartCoroutine(CoHit());
+            }
         }
     }
+
+    private IEnumerator CoHit()
+    {
+        enemyState = State.Hit;
+        GetComponent<Animator>().SetBool("isAttack", false);
+        GetComponent<Animator>().SetBool("isWalk", false);
+        GetComponent<Animator>().SetBool("isHit", true);
+        GetComponent<NavMeshAgent>().enabled = false;
+        zombieHands[0].GetComponent<SphereCollider>().enabled = false;
+        zombieHands[1].GetComponent<SphereCollider>().enabled = false;
+        yield return new WaitForSeconds(hitTime);
+        GetComponent<Animator>().SetBool("isHit", false);
+        enemyState = State.Idle;
+    }
+
 
     private void Chase(GameObject playerObj)
     {
@@ -52,6 +79,9 @@ public class Enemy : MonoBehaviour
             GetComponent<NavMeshAgent>().enabled = false;
             GetComponent<Animator>().SetBool("isAttack", true);
             GetComponent<Animator>().SetBool("isWalk", false);
+
+            zombieHands[0].GetComponent<SphereCollider>().enabled = true;
+            zombieHands[1].GetComponent<SphereCollider>().enabled = true;
         }
         else
         {
@@ -71,13 +101,20 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void OnCollsionStay(Collision collision)
+    private void OnCollisionStay(Collision collision)
     {
         string tag = collision.gameObject.tag;
-        Debug.Log(tag);
         if (tag == "Player")
         {
             Chase(collision.gameObject);
         }
+    }
+
+    public void EndAttackAni()
+    {
+        GetComponent<Animator>().SetBool("isAttack", false);
+        zombieHands[0].GetComponent<SphereCollider>().enabled = false;
+        zombieHands[1].GetComponent<SphereCollider>().enabled = false;
+        enemyState = State.Idle;
     }
 }
