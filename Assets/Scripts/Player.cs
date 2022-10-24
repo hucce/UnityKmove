@@ -96,17 +96,22 @@ public class Player : MonoBehaviour
     {
         if (playerState != State.Hit)
         {
+            GameObject uimanager = GameObject.FindGameObjectWithTag("UIManager");
+
             playerCurrentHP -= damage;
             if (playerCurrentHP <= 0)
             {
-                // Á»ºñ Á×À½
+                playerCurrentHP = 0;
                 playerState = State.Dead;
                 GetComponent<Animator>().SetBool("isDeath", true);
+                uimanager.GetComponent<UIManager>().GameOver();
             }
             else
             {
                 StartCoroutine(CoHit());
             }
+
+            uimanager.GetComponent<UIManager>().HpUpdate(playerCurrentHP, playerMaxHP);
         }
     }
 

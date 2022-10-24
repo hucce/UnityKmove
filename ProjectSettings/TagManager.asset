@@ -6,6 +6,7 @@ TagManager:
   tags:
   - PlayerWeapon
   - ZombieWeapon
+  - UIManager
   layers:
   - Default
   - TransparentFX
