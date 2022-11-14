@@ -72,6 +72,7 @@ public class Player : MonoBehaviour
             playerAnimator.SetBool("isRun", false);
             playerAnimator.SetBool("isAttack", true);
             swordCollider.SetActive(true);
+            swordCollider.GetComponent<AudioSource>().Play();
         }
     }
 

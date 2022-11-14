@@ -17,6 +17,8 @@ public class Enemy : MonoBehaviour
 
     private GameObject[] zombieHands = null;
 
+
+
     public enum State
     {
         Idle, Chase, Attack, Hit, Dead
@@ -26,6 +28,7 @@ public class Enemy : MonoBehaviour
     void Start()
     {
         zombieHands = GameObject.FindGameObjectsWithTag("ZombieWeapon");
+        GetComponent<ZombieSound>().PlaySound(ZombieSound.clip.Idle);
     }
 
     // Update is called once per frame
@@ -40,6 +43,8 @@ public class Enemy : MonoBehaviour
         {
             zombieHP -= damage;
             Debug.Log("좀비HP " + zombieHP);
+            GetComponent<ZombieSound>().PlaySound(ZombieSound.clip.Hit);
+
             if (zombieHP <= 0)
             {
                 // 좀비 죽음
@@ -65,6 +70,7 @@ public class Enemy : MonoBehaviour
         yield return new WaitForSeconds(hitTime);
         GetComponent<Animator>().SetBool("isHit", false);
         enemyState = State.Idle;
+        GetComponent<ZombieSound>().PlaySound(ZombieSound.clip.Idle);
     }
 
 
@@ -75,6 +81,8 @@ public class Enemy : MonoBehaviour
         // 공격 범위보다 좀비와 플레이어 사이 거리가 가까울 경우
         if(_dis < attackRange)
         {
+            GetComponent<ZombieSound>().PlaySound(ZombieSound.clip.Attack);
+
             enemyState = State.Attack;
             GetComponent<NavMeshAgent>().enabled = false;
             GetComponent<Animator>().SetBool("isAttack", true);
@@ -116,5 +124,6 @@ public class Enemy : MonoBehaviour
         zombieHands[0].GetComponent<SphereCollider>().enabled = false;
         zombieHands[1].GetComponent<SphereCollider>().enabled = false;
         enemyState = State.Idle;
+        GetComponent<ZombieSound>().PlaySound(ZombieSound.clip.Idle);
     }
 }
