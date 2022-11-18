@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UIElements;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -68,11 +70,14 @@ public class Player : MonoBehaviour
 
         if(but == true)
         {
-            playerState = State.Attack;
-            playerAnimator.SetBool("isRun", false);
-            playerAnimator.SetBool("isAttack", true);
-            swordCollider.SetActive(true);
-            swordCollider.GetComponent<AudioSource>().Play();
+            if (playerState != State.Dead || playerState != State.Hit)
+            {
+                playerState = State.Attack;
+                playerAnimator.SetBool("isRun", false);
+                playerAnimator.SetBool("isAttack", true);
+                swordCollider.SetActive(true);
+                swordCollider.GetComponent<AudioSource>().Play();
+            }
         }
     }
 
@@ -97,22 +102,18 @@ public class Player : MonoBehaviour
     {
         if (playerState != State.Hit)
         {
-            GameObject uimanager = GameObject.FindGameObjectWithTag("UIManager");
 
             playerCurrentHP -= damage;
             if (playerCurrentHP <= 0)
             {
-                playerCurrentHP = 0;
-                playerState = State.Dead;
-                GetComponent<Animator>().SetBool("isDeath", true);
-                uimanager.GetComponent<UIManager>().GameOver();
+                StartCoroutine(CoDeath());
             }
             else
             {
                 StartCoroutine(CoHit());
             }
 
-            uimanager.GetComponent<UIManager>().HpUpdate(playerCurrentHP, playerMaxHP);
+            UIManager.instance.HpUpdate(playerCurrentHP, playerMaxHP);
         }
     }
 
@@ -126,5 +127,24 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(hitTime);
         GetComponent<Animator>().SetBool("isHit", false);
         playerState = State.Idle;
+    }
+
+    private IEnumerator CoDeath()
+    {
+        playerCurrentHP = 0;
+        playerState = State.Dead;
+        GetComponent<Animator>().SetBool("isDeath", true);
+
+        // 죽는 모션이 충분히 나올때까지 기다리고
+        yield return new WaitForSeconds(3f);
+
+        // 게임 오버 UI 출력
+        UIManager.instance.GameOver();
+
+        // 대기하고
+        yield return new WaitForSeconds(10f);
+
+        // 씬을 재시작
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }
