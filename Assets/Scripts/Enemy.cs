@@ -50,6 +50,7 @@ public class Enemy : MonoBehaviour
                 // Á»ºñ Á×À½
                 enemyState = State.Dead;
                 GetComponent<Animator>().SetBool("isDeath", true);
+                Manager.instance.ZombieDead();
             }
             else
             {
