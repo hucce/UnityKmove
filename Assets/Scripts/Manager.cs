@@ -2,12 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using UnityEngine.UIElements;
 
 public class Manager : MonoBehaviour
 {
     private static Manager _instance = null;
 
     public static Manager instance { get { return _instance; } }
+
+    private string currentStage = "Stage1";
 
     private int zombieCount = 0;
 
@@ -55,5 +60,37 @@ public class Manager : MonoBehaviour
 
         // 다음 스테이지를 로딩
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+    }
+
+    public void Save()
+    {
+        SaveData saveData = new SaveData(StageNumber());
+
+        BinaryFormatter binaryFormatter = new BinaryFormatter();
+
+        FileStream file = File.Create(Application.persistentDataPath + "/Save.dat");
+
+        binaryFormatter.Serialize(file, saveData);
+
+        file.Close();
+    }
+
+    public void Load()
+    {
+        if(File.Exists(Application.persistentDataPath + "/Save.dat"))
+        {
+            FileStream file = File.Open(Application.persistentDataPath + "/Save.dat", FileMode.Open);
+
+            if(file != null && file.Length > 0)
+            {
+                BinaryFormatter binaryFormatter = new BinaryFormatter();
+
+                SaveData saveData = (SaveData)binaryFormatter.Deserialize(file);
+
+                currentStage = saveData.CurrentStage();
+
+                file.Close();
+            }
+        }
     }
 }
