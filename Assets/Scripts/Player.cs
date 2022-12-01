@@ -28,6 +28,16 @@ public class Player : MonoBehaviour
     void Start()
     {
         playerAnimator = GetComponent<Animator>();
+        LoadPlayerData();
+        UIManager.instance.HpStart(playerCurrentHP, playerMaxHP);
+    }
+
+    public void LoadPlayerData()
+    {
+        // 0 HP, 1 °ø°Ý·Â
+        playerMaxHP = DataManager.instance.playerDatas[0];
+        playerCurrentHP = playerMaxHP;
+        playerDamage = DataManager.instance.playerDatas[1];
     }
 
     // Update is called once per frame

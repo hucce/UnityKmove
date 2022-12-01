@@ -31,6 +31,11 @@ public class UIManager : MonoBehaviour
         hpbarObj.GetComponent<HPBar>().HpUpdate(currentHP, maxHP);
     }
 
+    public void HpStart(int currentHP, int maxHP)
+    {
+        hpuiObj.GetComponent<Text>().text = currentHP + "/" + maxHP;
+    }
+
     public void GameOver()
     {
         gameOverObj.SetActive(true);

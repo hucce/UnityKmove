@@ -26,6 +26,8 @@ public class Manager : MonoBehaviour
         GameObject[] zombies = GameObject.FindGameObjectsWithTag("Zombie");
         zombieCount = zombies.Length;
         UIManager.instance.ZombieCountUpdate(zombieCount);
+        DataManager.instance.Save(StageNumber());
+
     }
 
     public string StageNumber()
@@ -60,37 +62,5 @@ public class Manager : MonoBehaviour
 
         // 다음 스테이지를 로딩
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
-    }
-
-    public void Save()
-    {
-        SaveData saveData = new SaveData(StageNumber());
-
-        BinaryFormatter binaryFormatter = new BinaryFormatter();
-
-        FileStream file = File.Create(Application.persistentDataPath + "/Save.dat");
-
-        binaryFormatter.Serialize(file, saveData);
-
-        file.Close();
-    }
-
-    public void Load()
-    {
-        if(File.Exists(Application.persistentDataPath + "/Save.dat"))
-        {
-            FileStream file = File.Open(Application.persistentDataPath + "/Save.dat", FileMode.Open);
-
-            if(file != null && file.Length > 0)
-            {
-                BinaryFormatter binaryFormatter = new BinaryFormatter();
-
-                SaveData saveData = (SaveData)binaryFormatter.Deserialize(file);
-
-                currentStage = saveData.CurrentStage();
-
-                file.Close();
-            }
-        }
     }
 }
